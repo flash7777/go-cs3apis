@@ -108,6 +108,8 @@ const (
 	GatewayAPI_RemoveLabel_FullMethodName                      = "/cs3.gateway.v1beta1.GatewayAPI/RemoveLabel"
 	GatewayAPI_ListLabels_FullMethodName                       = "/cs3.gateway.v1beta1.GatewayAPI/ListLabels"
 	GatewayAPI_ListResourcesForLabel_FullMethodName            = "/cs3.gateway.v1beta1.GatewayAPI/ListResourcesForLabel"
+	GatewayAPI_SetImmutable_FullMethodName                     = "/cs3.gateway.v1beta1.GatewayAPI/SetImmutable"
+	GatewayAPI_UnsetImmutable_FullMethodName                   = "/cs3.gateway.v1beta1.GatewayAPI/UnsetImmutable"
 	GatewayAPI_CreatePublicShare_FullMethodName                = "/cs3.gateway.v1beta1.GatewayAPI/CreatePublicShare"
 	GatewayAPI_RemovePublicShare_FullMethodName                = "/cs3.gateway.v1beta1.GatewayAPI/RemovePublicShare"
 	GatewayAPI_GetPublicShare_FullMethodName                   = "/cs3.gateway.v1beta1.GatewayAPI/GetPublicShare"
@@ -347,6 +349,10 @@ type GatewayAPIClient interface {
 	ListLabels(ctx context.Context, in *v1beta15.ListLabelsRequest, opts ...grpc.CallOption) (*v1beta15.ListLabelsResponse, error)
 	// List the resources which have a given label attached for a given user
 	ListResourcesForLabel(ctx context.Context, in *v1beta15.ListResourcesForLabelRequest, opts ...grpc.CallOption) (*v1beta15.ListResourcesForLabelResponse, error)
+	// Set the immutable attribute on a resource.
+	SetImmutable(ctx context.Context, in *v1beta11.SetImmutableRequest, opts ...grpc.CallOption) (*v1beta11.SetImmutableResponse, error)
+	// Remove the immutable attribute from a resource.
+	UnsetImmutable(ctx context.Context, in *v1beta11.UnsetImmutableRequest, opts ...grpc.CallOption) (*v1beta11.UnsetImmutableResponse, error)
 	// Creates a new share.
 	// MUST return CODE_NOT_FOUND if the resource reference does not exist.
 	// MUST return CODE_ALREADY_EXISTS if the share already exists for the 4-tuple consisting of
@@ -1012,6 +1018,24 @@ func (c *gatewayAPIClient) ListLabels(ctx context.Context, in *v1beta15.ListLabe
 func (c *gatewayAPIClient) ListResourcesForLabel(ctx context.Context, in *v1beta15.ListResourcesForLabelRequest, opts ...grpc.CallOption) (*v1beta15.ListResourcesForLabelResponse, error) {
 	out := new(v1beta15.ListResourcesForLabelResponse)
 	err := c.cc.Invoke(ctx, GatewayAPI_ListResourcesForLabel_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *gatewayAPIClient) SetImmutable(ctx context.Context, in *v1beta11.SetImmutableRequest, opts ...grpc.CallOption) (*v1beta11.SetImmutableResponse, error) {
+	out := new(v1beta11.SetImmutableResponse)
+	err := c.cc.Invoke(ctx, GatewayAPI_SetImmutable_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *gatewayAPIClient) UnsetImmutable(ctx context.Context, in *v1beta11.UnsetImmutableRequest, opts ...grpc.CallOption) (*v1beta11.UnsetImmutableResponse, error) {
+	out := new(v1beta11.UnsetImmutableResponse)
+	err := c.cc.Invoke(ctx, GatewayAPI_UnsetImmutable_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -1719,6 +1743,8 @@ type GatewayAPIServer interface {
 	ListLabels(context.Context, *v1beta15.ListLabelsRequest) (*v1beta15.ListLabelsResponse, error)
 	// List the resources which have a given label attached for a given user
 	ListResourcesForLabel(context.Context, *v1beta15.ListResourcesForLabelRequest) (*v1beta15.ListResourcesForLabelResponse, error)
+	SetImmutable(context.Context, *v1beta11.SetImmutableRequest) (*v1beta11.SetImmutableResponse, error)
+	UnsetImmutable(context.Context, *v1beta11.UnsetImmutableRequest) (*v1beta11.UnsetImmutableResponse, error)
 	// Creates a new share.
 	// MUST return CODE_NOT_FOUND if the resource reference does not exist.
 	// MUST return CODE_ALREADY_EXISTS if the share already exists for the 4-tuple consisting of
@@ -2027,6 +2053,12 @@ func (UnimplementedGatewayAPIServer) ListLabels(context.Context, *v1beta15.ListL
 }
 func (UnimplementedGatewayAPIServer) ListResourcesForLabel(context.Context, *v1beta15.ListResourcesForLabelRequest) (*v1beta15.ListResourcesForLabelResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method ListResourcesForLabel not implemented")
+}
+func (UnimplementedGatewayAPIServer) SetImmutable(context.Context, *v1beta11.SetImmutableRequest) (*v1beta11.SetImmutableResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method SetImmutable not implemented")
+}
+func (UnimplementedGatewayAPIServer) UnsetImmutable(context.Context, *v1beta11.UnsetImmutableRequest) (*v1beta11.UnsetImmutableResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method UnsetImmutable not implemented")
 }
 func (UnimplementedGatewayAPIServer) CreatePublicShare(context.Context, *v1beta16.CreatePublicShareRequest) (*v1beta16.CreatePublicShareResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method CreatePublicShare not implemented")
@@ -3152,6 +3184,42 @@ func _GatewayAPI_ListResourcesForLabel_Handler(srv interface{}, ctx context.Cont
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(GatewayAPIServer).ListResourcesForLabel(ctx, req.(*v1beta15.ListResourcesForLabelRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _GatewayAPI_SetImmutable_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(v1beta11.SetImmutableRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(GatewayAPIServer).SetImmutable(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: GatewayAPI_SetImmutable_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(GatewayAPIServer).SetImmutable(ctx, req.(*v1beta11.SetImmutableRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _GatewayAPI_UnsetImmutable_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(v1beta11.UnsetImmutableRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(GatewayAPIServer).UnsetImmutable(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: GatewayAPI_UnsetImmutable_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(GatewayAPIServer).UnsetImmutable(ctx, req.(*v1beta11.UnsetImmutableRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -4406,6 +4474,14 @@ var GatewayAPI_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "ListResourcesForLabel",
 			Handler:    _GatewayAPI_ListResourcesForLabel_Handler,
+		},
+		{
+			MethodName: "SetImmutable",
+			Handler:    _GatewayAPI_SetImmutable_Handler,
+		},
+		{
+			MethodName: "UnsetImmutable",
+			Handler:    _GatewayAPI_UnsetImmutable_Handler,
 		},
 		{
 			MethodName: "CreatePublicShare",
